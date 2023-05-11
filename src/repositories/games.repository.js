@@ -3,12 +3,16 @@ import pool from "../database/pool.js";
 import camelCaseRows from "./utils/toCamelCase.js";
 
 class GamesRepository {
-  static async find({ name, orderField, desc, offset, limit }) {
+  static async find({ name, order, desc, offset, limit }) {
     const query = `
       SELECT * FROM games
       WHERE ${name !== undefined ? "name ~* $3" : "TRUE"}
       ORDER BY
-        ${orderField !== undefined ? pg.escapeIdentifier(orderField) : "TRUE"}
+        ${
+          order !== undefined
+            ? pg.Client.prototype.escapeIdentifier(order)
+            : "TRUE"
+        }
         ${desc ? "DESC" : "ASC"}
       OFFSET $1 LIMIT $2
     `;
