@@ -25,27 +25,22 @@ class GamesRepository {
   }
 
   static async post({ name, image, stockTotal, pricePerDay }) {
-    const selectQuery = `
-      SELECT * FROM games
-      WHERE name = $1;
-    `;
-
-    const { rows: matchedRows } = await pool.query(selectQuery, [name]);
-
-    if (matchedRows.length !== 0) return null;
-
-    const insertQuery = `
+    const query = `
       INSERT INTO games
         (name, image, "stockTotal", "pricePerDay")
-      VALUES
-        ($1, $2, $3, $4)
-      RETURNING *;
+        (
+          SELECT $1, $2, $3, $4
+          WHERE NOT EXISTS (
+            SELECT 1 FROM games
+            WHERE name = $1
+          )
+        );
     `;
 
-    const insertParams = [name, image, stockTotal, pricePerDay];
-    const { rows: insertedRows } = await pool.query(insertQuery, insertParams);
+    const params = [name, image, stockTotal, pricePerDay];
+    const { rowCount } = await pool.query(query, params);
 
-    return camelCaseRows(insertedRows);
+    return rowCount;
   }
 }
 

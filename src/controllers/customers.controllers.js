@@ -28,8 +28,8 @@ export async function postController(req, res) {
   const { body } = res.locals;
 
   try {
-    const postedCustomer = await CustomersRepository.post(body);
-    return postedCustomer !== null ? res.sendStatus(201) : res.sendStatus(409);
+    const insertedCount = await CustomersRepository.post(body);
+    return insertedCount !== 0 ? res.sendStatus(201) : res.sendStatus(409);
   } catch (err) {
     console.error(err);
     return res.status(500).send(err);

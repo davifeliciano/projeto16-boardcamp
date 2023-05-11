@@ -38,27 +38,22 @@ class CustomersRepository {
   }
 
   static async post({ name, phone, cpf, birthday }) {
-    const selectQuery = `
-      SELECT * FROM customers
-      WHERE cpf = $1;
-    `;
-
-    const { rows: matchedRows } = await pool.query(selectQuery, [cpf]);
-
-    if (matchedRows.length !== 0) return null;
-
-    const insertQuery = `
+    const query = `
       INSERT INTO customers
         (name, phone, cpf, birthday)
-      VALUES
-        ($1, $2, $3, $4)
-      RETURNING *;
+        (
+          SELECT $1, $2, $3, $4
+          WHERE NOT EXISTS (
+            SELECT 1 FROM customers
+            WHERE cpf = $3::VARCHAR
+          )
+        );
     `;
 
-    const insertParams = [name, phone, cpf, birthday];
-    const { rows: insertedRows } = await pool.query(insertQuery, insertParams);
+    const params = [name, phone, cpf, birthday];
+    const { rowCount } = await pool.query(query, params);
 
-    return camelCaseRows(insertedRows);
+    return rowCount;
   }
 }
 
