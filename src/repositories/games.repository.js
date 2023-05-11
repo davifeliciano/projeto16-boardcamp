@@ -6,7 +6,7 @@ class GamesRepository {
   static async find({ name, orderField, desc, offset, limit }) {
     const query = `
       SELECT * FROM games
-      WHERE ${name !== undefined ? "name ~* $3 " : "TRUE"}
+      WHERE ${name !== undefined ? "name ~* $3" : "TRUE"}
       ORDER BY
         ${orderField !== undefined ? pg.escapeIdentifier(orderField) : "TRUE"}
         ${desc ? "DESC" : "ASC"}

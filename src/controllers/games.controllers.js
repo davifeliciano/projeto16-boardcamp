@@ -16,8 +16,8 @@ export async function postController(req, res) {
   const { body } = res.locals;
 
   try {
-    const games = await GamesRepository.post(body);
-    return games !== null ? res.sendStatus(201) : res.sendStatus(409);
+    const postedGame = await GamesRepository.post(body);
+    return postedGame !== null ? res.sendStatus(201) : res.sendStatus(409);
   } catch (err) {
     console.error(err);
     return res.status(500).send(err);
