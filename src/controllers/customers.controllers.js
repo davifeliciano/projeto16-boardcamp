@@ -35,3 +35,19 @@ export async function postController(req, res) {
     return res.status(500).send(err);
   }
 }
+
+export async function putController(req, res) {
+  const { id, body } = res.locals;
+
+  try {
+    const updatedCount = await CustomersRepository.put(id, body);
+
+    if (updatedCount !== 0) return res.sendStatus(200);
+
+    const customer = await CustomersRepository.findById(id);
+    return customer !== null ? res.sendStatus(409) : res.sendStatus(404);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}

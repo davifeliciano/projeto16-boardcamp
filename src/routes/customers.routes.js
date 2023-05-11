@@ -6,6 +6,7 @@ import {
   findByIdController,
   findController,
   postController,
+  putController,
 } from "../controllers/customers.controllers.js";
 
 const customersRouter = Router();
@@ -13,5 +14,11 @@ const customersRouter = Router();
 customersRouter.get("/customers", validateQuery(querySchema), findController);
 customersRouter.get("/customers/:id", validateId, findByIdController);
 customersRouter.post("/customers", validateBody(bodySchema), postController);
+customersRouter.put(
+  "/customers/:id",
+  validateId,
+  validateBody(bodySchema),
+  putController
+);
 
 export default customersRouter;

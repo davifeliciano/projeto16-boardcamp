@@ -55,6 +55,26 @@ class CustomersRepository {
 
     return rowCount;
   }
+
+  static async put(id, { name, phone, cpf, birthday }) {
+    const query = `
+      UPDATE customers
+      SET
+        name = $2,
+        phone = $3,
+        cpf = $4,
+        birthday = $5
+      WHERE id = $1 AND NOT EXISTS (
+        SELECT 1 FROM customers
+        WHERE cpf = $4 AND id <> $1
+      );
+    `;
+
+    const params = [id, name, phone, cpf, birthday];
+    const { rowCount } = await pool.query(query, params);
+
+    return rowCount;
+  }
 }
 
 export default CustomersRepository;
