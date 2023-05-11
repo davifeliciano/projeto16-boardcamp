@@ -3,10 +3,10 @@ import Joi from "joi";
 const bodySchema = Joi.object({
   name: Joi.string().trim().required(),
   phone: Joi.string()
-    .pattern(/\d{2}9?\d{8}/)
+    .pattern(/^\d{10,11}$/)
     .required(),
   cpf: Joi.string()
-    .pattern(/\d{11}/)
+    .pattern(/^\d{11}$/)
     .required(),
   birthday: Joi.date().required(),
 });
