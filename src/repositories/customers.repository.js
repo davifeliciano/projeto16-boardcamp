@@ -5,7 +5,13 @@ import camelCaseRows from "./utils/toCamelCase.js";
 class CustomersRepository {
   static async find({ cpf, order, desc, offset, limit }) {
     const query = `
-      SELECT * FROM customers
+      SELECT
+        id,
+        name,
+        phone,
+        cpf,
+        TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday
+      FROM customers
       WHERE ${cpf !== undefined ? "cpf ~ $3" : "TRUE"}
       ORDER BY
         ${
@@ -26,7 +32,13 @@ class CustomersRepository {
 
   static async findById(id) {
     const query = `
-      SELECT * FROM customers
+      SELECT
+        id,
+        name,
+        phone,
+        cpf,
+        TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday
+      FROM customers
       WHERE id = $1;
     `;
 
@@ -50,7 +62,7 @@ class CustomersRepository {
         );
     `;
 
-    const params = [name, phone, cpf, birthday];
+    const params = [name, phone, cpf, birthday.toISOString()];
     const { rowCount } = await pool.query(query, params);
 
     return rowCount;
@@ -70,7 +82,7 @@ class CustomersRepository {
       );
     `;
 
-    const params = [id, name, phone, cpf, birthday];
+    const params = [id, name, phone, cpf, birthday.toISOString()];
     const { rowCount } = await pool.query(query, params);
 
     return rowCount;
