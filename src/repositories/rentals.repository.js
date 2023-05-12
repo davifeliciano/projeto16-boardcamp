@@ -87,6 +87,56 @@ class RentalsRepository {
 
     return camelCaseRows(restructuredRows);
   }
+
+  static async post({ customerId, gameId, daysRented }) {
+    const query = `
+      WITH cte (available_games) AS (
+        VALUES (
+          (
+            SELECT "stockTotal" FROM games
+            WHERE id = $2
+          ) -
+          (
+            SELECT COUNT(*) FROM rentals
+            WHERE "gameId" = $2 AND "returnDate" IS NULL
+          )
+        )
+      )
+      INSERT INTO rentals
+        (
+          "customerId",
+          "gameId",
+          "rentDate",
+          "daysRented",
+          "returnDate",
+          "originalPrice",
+          "delayFee"
+        )
+        (
+          SELECT
+            $1, $2, NOW(), $3, NULL,
+            (
+              SELECT $3 * "pricePerDay"
+              FROM games
+              WHERE id = $2
+            ),
+            NULL
+          FROM cte
+          WHERE EXISTS (
+            SELECT 1 FROM customers
+            WHERE id = $1
+          ) AND EXISTS (
+            SELECT 1 FROM games
+            WHERE id = $2
+          ) AND available_games > 0
+        );
+    `;
+
+    const params = [customerId, gameId, daysRented];
+    const { rowCount } = await pool.query(query, params);
+
+    return rowCount;
+  }
 }
 
 export default RentalsRepository;
