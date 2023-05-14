@@ -42,10 +42,8 @@ class RentalsRepository {
     const query = `
       SELECT
         r.*,
-        g.id AS "gameId",
-        g.name AS "gameName",
-        c.id AS "customerId",
-        c.name AS "customerName"
+        JSON_BUILD_OBJECT('id', c.id, 'name', c.name) AS customer,
+        JSON_BUILD_OBJECT('id', g.id, 'name', g.name) AS game
       FROM rentals r
       JOIN games g ON g.id = r."gameId"
       JOIN customers c ON c.id = r."customerId"
@@ -66,26 +64,7 @@ class RentalsRepository {
     const params = [offset, limit, ...whereParams];
     const { rows } = await pool.query(query, params);
 
-    const restructuredRows = rows.map((row) => {
-      const newRow = {
-        ...row,
-        customer: {
-          id: row.customerId,
-          name: row.customerName,
-        },
-        game: {
-          id: row.gameId,
-          name: row.gameName,
-        },
-      };
-
-      delete newRow.customerName;
-      delete newRow.gameName;
-
-      return newRow;
-    });
-
-    return camelCaseRows(restructuredRows);
+    return camelCaseRows(rows);
   }
 
   static async post({ customerId, gameId, daysRented }) {
