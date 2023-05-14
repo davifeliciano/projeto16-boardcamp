@@ -60,7 +60,6 @@ class RentalsRepository {
       OFFSET $1 LIMIT $2;
     `;
 
-    console.log(query);
     const params = [offset, limit, ...whereParams];
     const { rows } = await pool.query(query, params);
 
