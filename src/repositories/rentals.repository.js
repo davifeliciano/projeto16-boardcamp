@@ -171,6 +171,17 @@ class RentalsRepository {
 
     return rowCount;
   }
+
+  static async delete(id) {
+    const query = `
+      DELETE FROM rentals
+      WHERE id = $1 AND "returnDate" IS NOT NULL;
+    `;
+
+    const { rowCount } = await pool.query(query, [id]);
+
+    return rowCount;
+  }
 }
 
 export default RentalsRepository;

@@ -39,3 +39,19 @@ export async function returnController(req, res) {
     return res.status(500).send(err);
   }
 }
+
+export async function deleteController(req, res) {
+  const { id } = res.locals;
+
+  try {
+    const deletedCount = await RentalsRepository.delete(id);
+
+    if (deletedCount !== 0) return res.sendStatus(200);
+
+    const rental = await RentalsRepository.findById(id);
+    return rental !== null ? res.sendStatus(400) : res.sendStatus(404);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}
