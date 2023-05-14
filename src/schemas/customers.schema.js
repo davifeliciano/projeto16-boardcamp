@@ -15,7 +15,7 @@ const querySchema = Joi.object({
   cpf: Joi.string().pattern(/\d+/),
   offset: Joi.number().integer().positive().default(0),
   limit: Joi.number().integer().positive(),
-  order: Joi.string().valid("name", "phone", "cpf", "birthday"),
+  order: Joi.string().valid("id", "name", "phone", "cpf", "birthday"),
   desc: Joi.boolean().default(false),
 });
 

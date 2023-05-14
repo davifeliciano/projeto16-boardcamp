@@ -16,6 +16,7 @@ const querySchema = Joi.object({
   offset: Joi.number().integer().positive().default(0),
   limit: Joi.number().integer().positive(),
   order: Joi.string().valid(
+    "id",
     "customerId",
     "gameId",
     "rentDate",

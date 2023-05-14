@@ -11,7 +11,7 @@ const querySchema = Joi.object({
   name: Joi.string(),
   offset: Joi.number().integer().positive().default(0),
   limit: Joi.number().integer().positive(),
-  order: Joi.string().valid("name", "stockTotal", "pricePerDay"),
+  order: Joi.string().valid("id", "name", "image", "stockTotal", "pricePerDay"),
   desc: Joi.boolean().default(false),
 });
 
