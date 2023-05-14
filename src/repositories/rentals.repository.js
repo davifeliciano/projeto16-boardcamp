@@ -67,6 +67,25 @@ class RentalsRepository {
     return camelCaseRows(rows);
   }
 
+  static async findById(id) {
+    const query = `
+      SELECT
+        r.*,
+        JSON_BUILD_OBJECT('id', c.id, 'name', c.name) AS customer,
+        JSON_BUILD_OBJECT('id', g.id, 'name', g.name) AS game
+      FROM rentals r
+      JOIN games g ON g.id = r."gameId"
+      JOIN customers c ON c.id = r."customerId"
+      WHERE r.id = $1;
+    `;
+
+    const { rows } = await pool.query(query, [id]);
+
+    if (rows.length === 0) return null;
+
+    return camelCaseRows(rows)[0];
+  }
+
   static async post({ customerId, gameId, daysRented }) {
     const query = `
       WITH cte (available_games) AS (
@@ -113,6 +132,42 @@ class RentalsRepository {
 
     const params = [customerId, gameId, daysRented];
     const { rowCount } = await pool.query(query, params);
+
+    return rowCount;
+  }
+
+  static async return(id) {
+    const query = `
+      WITH cte (delay_fee) AS (
+        VALUES (
+          (
+            SELECT (NOW()::DATE - "rentDate") - "daysRented"
+            FROM rentals
+            WHERE id = $1
+          ) *
+          (
+            SELECT g."pricePerDay"
+            FROM rentals r
+            JOIN games g ON g.id = r."gameId"
+            WHERE r.id = $1
+          )
+        )
+      )
+      UPDATE rentals r
+      SET
+        "returnDate" = NOW(),
+        "delayFee" = (
+          SELECT
+            CASE
+              WHEN delay_fee >= 0 THEN delay_fee
+              WHEN delay_fee < 0 THEN 0
+            END
+          FROM cte
+        )
+      WHERE id = $1 AND "returnDate" IS NULL;
+    `;
+
+    const { rowCount } = await pool.query(query, [id]);
 
     return rowCount;
   }

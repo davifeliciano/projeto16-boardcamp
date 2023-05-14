@@ -23,3 +23,19 @@ export async function postController(req, res) {
     return res.status(500).send(err);
   }
 }
+
+export async function returnController(req, res) {
+  const { id } = res.locals;
+
+  try {
+    const updatedCount = await RentalsRepository.return(id);
+
+    if (updatedCount !== 0) return res.sendStatus(200);
+
+    const rental = await RentalsRepository.findById(id);
+    return rental !== null ? res.sendStatus(400) : res.sendStatus(404);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}
