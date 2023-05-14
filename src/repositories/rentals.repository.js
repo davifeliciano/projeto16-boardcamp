@@ -55,7 +55,7 @@ class RentalsRepository {
       ORDER BY
         ${
           order !== undefined
-            ? pg.Client.prototype.escapeIdentifier(order)
+            ? "r." + pg.Client.prototype.escapeIdentifier(order)
             : "TRUE"
         }
         ${desc ? "DESC" : "ASC"}
